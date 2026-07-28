@@ -1,0 +1,1 @@
+"""Host-independent persistence encoding."""
