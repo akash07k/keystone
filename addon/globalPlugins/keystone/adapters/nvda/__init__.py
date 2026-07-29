@@ -1,0 +1,1 @@
+"""NVDA host adapters."""
