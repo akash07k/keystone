@@ -1,0 +1,1230 @@
+{
+	"formatVersion": 1,
+	"audioFormat": {
+		"encoding": "pcm_s16le",
+		"channels": 2,
+		"sampleRateHz": 44100,
+		"sampleWidthBits": 16
+	},
+	"manifestRoot": "addon/globalPlugins/keystone/sounds/rich",
+	"limits": {
+		"maxFrames": 44100,
+		"maxDurationMs": 1000,
+		"maxSizeBytes": 98304
+	},
+	"cues": [
+		{
+			"index": 0,
+			"cueId": "layerEntered",
+			"path": "layer-enter.wav",
+			"tonalRole": "Short neutral doorway interval",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 440,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 105,
+						"durationMs": 120,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 587,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 1,
+			"cueId": "layerInvalidKey",
+			"path": "layer-invalid.wav",
+			"tonalRole": "Dry two-note rejection",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 60,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 300,
+								"amp": 0.65
+							}
+						]
+					},
+					{
+						"offsetMs": 90,
+						"durationMs": 60,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 300,
+								"amp": 0.65
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 2,
+			"cueId": "layerTimeout",
+			"path": "layer-timeout.wav",
+			"tonalRole": "Soft falling timeout",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 110,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 520,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 128,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 350,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 3,
+			"cueId": "layerExplicitExit",
+			"path": "layer-exit.wav",
+			"tonalRole": "Short closed cadence",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 100,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 523,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 116,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 392,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 4,
+			"cueId": "boundedFullFamily",
+			"path": "family-full-bounded.wav",
+			"tonalRole": "Low-to-mid capture identifier",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 120,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 330,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 138,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 494,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 5,
+			"cueId": "unlimitedFullFamily",
+			"path": "family-full-unlimited.wav",
+			"tonalRole": "Wider version of full identifier",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 120,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 330,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 138,
+						"durationMs": 170,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 659,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 6,
+			"cueId": "diffFamily",
+			"path": "family-diff.wav",
+			"tonalRole": "Alternating comparison interval",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 440,
+								"amp": 0.72
+							}
+						]
+					},
+					{
+						"offsetMs": 106,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 554,
+								"amp": 0.72
+							}
+						]
+					},
+					{
+						"offsetMs": 212,
+						"durationMs": 120,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 440,
+								"amp": 0.72
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 7,
+			"cueId": "boundedNavigatorFamily",
+			"path": "family-navigator-bounded.wav",
+			"tonalRole": "Focused high-mid identifier",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 587,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 8,
+			"cueId": "unlimitedNavigatorFamily",
+			"path": "family-navigator-unlimited.wav",
+			"tonalRole": "Wider navigator identifier",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 110,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 587,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 126,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 880,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 9,
+			"cueId": "startState",
+			"path": "state-start.wav",
+			"tonalRole": "Short rising motif",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 494,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 104,
+						"durationMs": 130,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 740,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 10,
+			"cueId": "progressState",
+			"path": "state-progress.wav",
+			"tonalRole": "Soft single pulse",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 120,
+						"attackMs": 8,
+						"releaseMs": 40,
+						"partials": [
+							{
+								"freqHz": 660,
+								"amp": 0.6
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 11,
+			"cueId": "cancellationRequested",
+			"path": "state-cancel-requested.wav",
+			"tonalRole": "Two restrained descending pulses",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 620,
+								"amp": 0.6
+							}
+						]
+					},
+					{
+						"offsetMs": 110,
+						"durationMs": 110,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 520,
+								"amp": 0.6
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 12,
+			"cueId": "cancelledOutcome",
+			"path": "outcome-cancelled.wav",
+			"tonalRole": "Gentle descending resolution",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 110,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 588,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 126,
+						"durationMs": 160,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 440,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 13,
+			"cueId": "successOutcome",
+			"path": "outcome-success.wav",
+			"tonalRole": "Short resolved cadence",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 100,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 523,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 114,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 698,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 14,
+			"cueId": "truncatedSuccessOutcome",
+			"path": "outcome-truncated.wav",
+			"tonalRole": "Resolved cadence with measured qualifier",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 95,
+						"attackMs": 8,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 523,
+								"amp": 0.72
+							}
+						]
+					},
+					{
+						"offsetMs": 109,
+						"durationMs": 95,
+						"attackMs": 8,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 698,
+								"amp": 0.72
+							}
+						]
+					},
+					{
+						"offsetMs": 218,
+						"durationMs": 125,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 622,
+								"amp": 0.72
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 15,
+			"cueId": "partialScreenshotOutcome",
+			"path": "outcome-partial-screenshot.wav",
+			"tonalRole": "Resolved cadence with soft warning tail",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 100,
+						"attackMs": 8,
+						"releaseMs": 20,
+						"partials": [
+							{
+								"freqHz": 523,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 118,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 698,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 286,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 60,
+						"partials": [
+							{
+								"freqHz": 311,
+								"amp": 0.45
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 16,
+			"cueId": "noChangeOutcome",
+			"path": "outcome-no-change.wav",
+			"tonalRole": "Stable repeated tone",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 95,
+						"attackMs": 8,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 466,
+								"amp": 0.72
+							}
+						]
+					},
+					{
+						"offsetMs": 115,
+						"durationMs": 95,
+						"attackMs": 8,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 466,
+								"amp": 0.72
+							}
+						]
+					},
+					{
+						"offsetMs": 230,
+						"durationMs": 125,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 466,
+								"amp": 0.72
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 17,
+			"cueId": "baselineCreatedOutcome",
+			"path": "outcome-baseline-created.wav",
+			"tonalRole": "Open resolved cadence",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 100,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 523,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 114,
+						"durationMs": 170,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 784,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 18,
+			"cueId": "failureOutcome",
+			"path": "outcome-failure.wav",
+			"tonalRole": "Short non-harsh error motif",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 100,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 400,
+								"amp": 0.6
+							}
+						]
+					},
+					{
+						"offsetMs": 118,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 320,
+								"amp": 0.6
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 19,
+			"cueId": "focusInspectorFamily",
+			"path": "family-inspector-focus.wav",
+			"tonalRole": "Focus-target identifier",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 622,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 20,
+			"cueId": "navigatorInspectorFamily",
+			"path": "family-inspector-navigator.wav",
+			"tonalRole": "Navigator-target identifier",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 698,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 21,
+			"cueId": "inspectorRefresh",
+			"path": "inspector-refresh.wav",
+			"tonalRole": "Circular two-note refresh",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 660,
+								"amp": 0.72
+							}
+						]
+					},
+					{
+						"offsetMs": 104,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 784,
+								"amp": 0.72
+							}
+						]
+					},
+					{
+						"offsetMs": 208,
+						"durationMs": 120,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 660,
+								"amp": 0.72
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 22,
+			"cueId": "inspectorReady",
+			"path": "inspector-ready.wav",
+			"tonalRole": "Compact ready cadence",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 784,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 104,
+						"durationMs": 120,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 988,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 23,
+			"cueId": "inspectorClose",
+			"path": "inspector-close.wav",
+			"tonalRole": "Gentle closed cadence",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 100,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 660,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 116,
+						"durationMs": 160,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 440,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 24,
+			"cueId": "eventMonitorStart",
+			"path": "event-monitor-start.wav",
+			"tonalRole": "Rising event pulse",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 523,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 104,
+						"durationMs": 120,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 659,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 25,
+			"cueId": "eventMonitorStop",
+			"path": "event-monitor-stop.wav",
+			"tonalRole": "Descending event pulse",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 659,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 104,
+						"durationMs": 120,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 523,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 26,
+			"cueId": "pendingQueueDrop",
+			"path": "event-drop-pending.wav",
+			"tonalRole": "Measured double warning pulse",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 80,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 466,
+								"amp": 0.62
+							}
+						]
+					},
+					{
+						"offsetMs": 102,
+						"durationMs": 80,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 466,
+								"amp": 0.62
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 27,
+			"cueId": "retainedRowDrop",
+			"path": "event-drop-retained.wav",
+			"tonalRole": "Measured lower double warning pulse",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 80,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 370,
+								"amp": 0.62
+							}
+						]
+					},
+					{
+						"offsetMs": 102,
+						"durationMs": 80,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 370,
+								"amp": 0.62
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 28,
+			"cueId": "eventExportFamily",
+			"path": "family-event-export.wav",
+			"tonalRole": "Export identifier",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 100,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 588,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 114,
+						"durationMs": 150,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 784,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 29,
+			"cueId": "outputPathCopied",
+			"path": "confirm-output-copy.wav",
+			"tonalRole": "Single confirmation tick",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 6,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 880,
+								"amp": 0.7
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 30,
+			"cueId": "explorerReveal",
+			"path": "confirm-explorer-reveal.wav",
+			"tonalRole": "Opening confirmation interval",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 80,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 660,
+								"amp": 0.75
+							}
+						]
+					},
+					{
+						"offsetMs": 94,
+						"durationMs": 110,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 990,
+								"amp": 0.75
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 31,
+			"cueId": "commandHelpOpened",
+			"path": "confirm-help-open.wav",
+			"tonalRole": "Light two-note confirmation",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 70,
+						"attackMs": 8,
+						"releaseMs": 35,
+						"partials": [
+							{
+								"freqHz": 784,
+								"amp": 0.68
+							}
+						]
+					},
+					{
+						"offsetMs": 82,
+						"durationMs": 90,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 988,
+								"amp": 0.68
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 32,
+			"cueId": "quickPropertyBrowsableMessage",
+			"path": "confirm-quick-browse.wav",
+			"tonalRole": "Open confirmation tick",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 6,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 830,
+								"amp": 0.7
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 33,
+			"cueId": "quickPropertyCopy",
+			"path": "confirm-quick-copy.wav",
+			"tonalRole": "Closed confirmation tick",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 90,
+						"attackMs": 6,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 740,
+								"amp": 0.7
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"index": 34,
+			"cueId": "sharedWarning",
+			"path": "warning-shared.wav",
+			"tonalRole": "Recognizable measured warning motif",
+			"synthesis": {
+				"masterGain": 0.5,
+				"segments": [
+					{
+						"offsetMs": 0,
+						"durationMs": 95,
+						"attackMs": 8,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 494,
+								"amp": 0.72
+							}
+						]
+					},
+					{
+						"offsetMs": 113,
+						"durationMs": 95,
+						"attackMs": 8,
+						"releaseMs": 30,
+						"partials": [
+							{
+								"freqHz": 415,
+								"amp": 0.72
+							}
+						]
+					},
+					{
+						"offsetMs": 226,
+						"durationMs": 125,
+						"attackMs": 8,
+						"releaseMs": 45,
+						"partials": [
+							{
+								"freqHz": 494,
+								"amp": 0.72
+							}
+						]
+					}
+				]
+			}
+		}
+	]
+}

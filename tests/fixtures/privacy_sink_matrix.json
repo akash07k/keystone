@@ -1,0 +1,36 @@
+{
+	"fieldGroups": [
+		"node",
+		"text",
+		"custom",
+		"relation",
+		"diagnostic",
+		"event",
+		"process",
+		"screenshot",
+		"baseline",
+		"summary",
+		"gui",
+		"copy",
+		"eventExport",
+		"log"
+	],
+	"sinks": [
+		"node",
+		"text",
+		"custom",
+		"relation",
+		"diagnostic",
+		"event",
+		"process",
+		"screenshot",
+		"baseline",
+		"summary",
+		"gui",
+		"copyJson",
+		"copyText",
+		"copyMarkdown",
+		"eventExport",
+		"nvdaLog"
+	]
+}

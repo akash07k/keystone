@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "symbols": [
+    {
+      "sourceFile": "source/globalPluginHandler.py",
+      "sourceLocation": "L30",
+      "symbol": "initialize",
+      "assertion": "constructs each GlobalPlugin without arguments"
+    },
+    {
+      "sourceFile": "source/globalPluginHandler.py",
+      "sourceLocation": "L38",
+      "symbol": "terminate",
+      "assertion": "terminates each owned running plugin"
+    },
+    {
+      "sourceFile": "source/globalPluginHandler.py",
+      "sourceLocation": "L47",
+      "symbol": "reloadGlobalPlugins",
+      "assertion": "terminates running plugins before reloading"
+    },
+    {
+      "sourceFile": "source/gui/settingsDialogs.py",
+      "sourceLocation": "L6601",
+      "symbol": "NVDASettingsDialog.categoryClasses",
+      "assertion": "owns the ordered settings category class collection"
+    }
+  ]
+}

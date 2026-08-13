@@ -1,0 +1,12 @@
+[
+  {"backend":"uia","operation":"fieldRead","outcome":"success","durationMicroseconds":900,"itemCount":1,"budget":10},
+  {"backend":"uia","operation":"fieldRead","outcome":"slow","durationMicroseconds":12000,"itemCount":1,"budget":10},
+  {"backend":"uia","operation":"fieldRead","outcome":"blocked","durationMicroseconds":150000,"itemCount":0,"budget":10},
+  {"backend":"ia2Msaa","operation":"fieldRead","outcome":"success","durationMicroseconds":800,"itemCount":1,"budget":10},
+  {"backend":"ia2Msaa","operation":"fieldRead","outcome":"success","durationMicroseconds":900,"itemCount":1,"budget":10},
+  {"backend":"ia2Msaa","operation":"fieldRead","outcome":"stale","durationMicroseconds":1100,"itemCount":0,"budget":10},
+  {"backend":"javaAccessBridge","operation":"release","outcome":"success","durationMicroseconds":400,"itemCount":1,"budget":1},
+  {"backend":"javaAccessBridge","operation":"release","outcome":"releaseFailed","durationMicroseconds":500,"itemCount":0,"budget":1},
+  {"backend":"offline","operation":"offlineAdmission","outcome":"success","durationMicroseconds":5000,"itemCount":20,"budget":100},
+  {"backend":"offline","operation":"offlineAdmission","outcome":"malformed","durationMicroseconds":3000,"itemCount":0,"budget":100}
+]
