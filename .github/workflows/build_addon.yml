@@ -1,0 +1,79 @@
+name: Keystone quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  quality:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install system tools
+        run: |
+          choco install gettext --yes --no-progress
+          $xgettextCommand = Get-Command xgettext.exe -ErrorAction SilentlyContinue
+          $xgettextPath = $xgettextCommand.Path
+          if (-not $xgettextPath) {
+            $searchRoots = @(
+              (Join-Path $env:ProgramFiles "gettext-iconv")
+            )
+            if ($env:ChocolateyInstall) {
+              $searchRoots += Join-Path $env:ChocolateyInstall "lib\gettext\tools"
+            }
+            $xgettextPath = Get-ChildItem $searchRoots -Filter xgettext.exe -Recurse -ErrorAction SilentlyContinue |
+              Select-Object -ExpandProperty FullName -First 1
+          }
+          if (-not $xgettextPath) {
+            throw "xgettext.exe was not found after installing gettext"
+          }
+          Split-Path -Parent $xgettextPath |
+            Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Install pinned dependencies
+        run: uv sync --locked
+
+      - name: Run tests
+        if: ${{ hashFiles('tests/**/*.py') != '' }}
+        run: uv run python -m unittest discover -s tests -v
+
+      - name: Lint source
+        run: |
+          $lintTargets = @("buildVars.py")
+          if (Test-Path "addon") {
+            $lintTargets += "addon"
+          }
+          if (Test-Path "tests") {
+            $lintTargets += "tests"
+          }
+          uv run ruff check $lintTargets
+          uv run ruff format --check $lintTargets
+
+      - name: Check types
+        run: uv run python -m pyright
+
+      - name: Run tracked-file hooks
+        run: |
+          git switch --detach
+          uv run prek run --all-files
+
+      - name: Extract translatable messages
+        run: uv run scons pot
+
+      - name: Check build graph
+        run: uv run scons --no-exec version=0.0.0 channel=dev
