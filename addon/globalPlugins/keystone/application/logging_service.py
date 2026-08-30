@@ -187,7 +187,8 @@ class LoggingService:
 		if type(candidate.fields) is not tuple:
 			raise TypeError("logging candidate fields must be a tuple")
 		if candidate.exception is not None and not isinstance(
-			cast(object, candidate.exception), SafeException
+			cast(object, candidate.exception),
+			SafeException,
 		):
 			raise TypeError("logging candidate exceptions must be safe exceptions")
 		for field in candidate.fields:

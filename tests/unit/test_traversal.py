@@ -224,7 +224,7 @@ class IterativeTraversalTests(unittest.TestCase):
 		self.assertEqual("n1", rootCycle.referenceKey)
 		self.assertLessEqual(identity.calls, (depth + 1) * 40)
 		self.assertFalse(
-			next(item for item in result.limits if item.limitType == "identityComparisons").reached
+			next(item for item in result.limits if item.limitType == "identityComparisons").reached,
 		)
 
 	def test_cycle_emits_minimal_reference_and_stops_descent(self) -> None:
@@ -391,7 +391,7 @@ class IterativeTraversalTests(unittest.TestCase):
 		self.assertEqual(sum(branching**level for level in range(depth + 1)), len(result.nodes))
 		self.assertFalse(result.truncated)
 		self.assertFalse(
-			next(item for item in result.limits if item.limitType == "identityComparisons").reached
+			next(item for item in result.limits if item.limitType == "identityComparisons").reached,
 		)
 
 	def test_text_truncation_marks_a_leaf_without_child_truncation(self) -> None:

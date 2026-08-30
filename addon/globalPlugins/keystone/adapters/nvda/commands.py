@@ -1266,7 +1266,9 @@ class ProductionCommandRuntime:
 
 		package = self._inspectorSubtreePackage(nodeId)
 		return SelectedSubtreeProjection(
-			nodeId, self._inspectorService.sourceGeneration, package
+			nodeId,
+			self._inspectorService.sourceGeneration,
+			package,
 		).toJsonBytes()
 
 	def _exportInspectorSubtreeSnapshot(self, nodeId: str, destination: Path) -> None:

@@ -483,7 +483,9 @@ class InspectorSourceAndPaneTests(unittest.TestCase):
 			),
 		)
 		with patch.object(
-			reader, "_providerMetadata", return_value=ProviderReadResult("value", providerMetadata)
+			reader,
+			"_providerMetadata",
+			return_value=ProviderReadResult("value", providerMetadata),
 		):
 			providerRows = reader.properties(targetRef, PropertyCategory.IA2_MSAA)
 		(providerRow,) = providerRows.rows

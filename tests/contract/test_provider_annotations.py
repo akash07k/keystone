@@ -64,7 +64,8 @@ class ProviderAnnotationCollectionTests(unittest.TestCase):
 		)
 
 		self.assertEqual(
-			(AnnotationStatus.VALUE, AnnotationStatus.FAILED), tuple(record.status for record in records)
+			(AnnotationStatus.VALUE, AnnotationStatus.FAILED),
+			tuple(record.status for record in records),
 		)
 		self.assertEqual("first", records[0].targetName)
 
@@ -248,7 +249,8 @@ class ProviderAnnotationCollectionTests(unittest.TestCase):
 		result = NvdaObjectGetter.readAttribute(_Source(), "annotations", budget)
 
 		self.assertEqual(
-			(AnnotationStatus.VALUE, AnnotationStatus.TRUNCATED), tuple(record.status for record in records)
+			(AnnotationStatus.VALUE, AnnotationStatus.TRUNCATED),
+			tuple(record.status for record in records),
 		)
 		self.assertEqual("value", result.status)
 		self.assertTrue(result.truncated)

@@ -1476,7 +1476,8 @@ class InspectorWorkspaceTests(unittest.TestCase):
 			[label for _identifier, label in liveSubmenus["&Export"].items],
 		)
 		self.assertEqual(
-			["t", "j", "f"], [label[label.index("&") + 1].casefold() for label in liveCopyLabels]
+			["t", "j", "f"],
+			[label[label.index("&") + 1].casefold() for label in liveCopyLabels],
 		)
 		self.assertNotIn(
 			"Copy &recorded subtree snapshot as JSON",

@@ -957,10 +957,10 @@ class RawUiaTracerTests(unittest.TestCase):
 		context = _context()
 
 		field = adapter.readField(
-			ProviderFieldRequest("secret-node", "name", ReadBudget(8, 128, 250), context)
+			ProviderFieldRequest("secret-node", "name", ReadBudget(8, 128, 250), context),
 		)
 		children = adapter.readChildren(
-			ProviderChildrenRequest("secret-node", ReadBudget(8, 128, 250), context)
+			ProviderChildrenRequest("secret-node", ReadBudget(8, 128, 250), context),
 		)
 		metadata = adapter.readMetadata(
 			ProviderMetadataRequest("secret-node", "rawProjection", ReadBudget(8, 128, 250), context),
@@ -1116,7 +1116,8 @@ class RawUiaTracerTests(unittest.TestCase):
 		)
 
 		self.assertEqual(
-			(8, 4096, 250), (budget.maximumItems, budget.maximumTextLength, budget.maximumMilliseconds)
+			(8, 4096, 250),
+			(budget.maximumItems, budget.maximumTextLength, budget.maximumMilliseconds),
 		)
 
 

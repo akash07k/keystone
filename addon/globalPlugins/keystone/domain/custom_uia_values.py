@@ -58,7 +58,7 @@ class ElementReference:
 			raise ValueError("capture-local element keys must not be empty")
 		if self.captureNodeKey is not None and (self.runtimeIdMetadata or self.providerProcessId is not None):
 			raise ValueError(
-				"capture-local element references cannot include external runtime or process metadata"
+				"capture-local element references cannot include external runtime or process metadata",
 			)
 		if not self.scopedReference:
 			raise ValueError("element references require a scoped correlation token")

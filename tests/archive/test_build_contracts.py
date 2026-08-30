@@ -399,7 +399,8 @@ class ArchiveInventoryTests(unittest.TestCase):
 			self.assertIn(b'href="user-guide.html"', members[readme.html_member])
 			self.assertNotIn(b'href="user-guide.md"', members[readme.html_member])
 			self.assertIn(
-				b'href="user-guide.html#monitor-events"', members["doc/en/settings-and-privacy.html"]
+				b'href="user-guide.html#monitor-events"',
+				members["doc/en/settings-and-privacy.html"],
 			)
 			self.assertIn(b'id="monitor-events"', members["doc/en/user-guide.html"])
 			self.assertNotIn("doc/en/developer-guide.md", members)

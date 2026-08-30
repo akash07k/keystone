@@ -432,7 +432,8 @@ class SelectedObjectIdentityTests(unittest.TestCase):
 		result = session.compareIdentity(request)
 
 		self.assertEqual(
-			("value", "same", (("pythonIdentity", True),)), (result.status, result.decision, result.evidence)
+			("value", "same", (("pythonIdentity", True),)),
+			(result.status, result.decision, result.evidence),
 		)
 		self.assertEqual([request], rawUia.comparisons)
 		session.close()

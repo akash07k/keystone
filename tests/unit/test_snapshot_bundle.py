@@ -181,7 +181,8 @@ class SnapshotBundleEncodingTests(unittest.TestCase):
 		self.assertIn("semantics.jsonl", payloads)
 		self.assertNotIn(b"secret", payloads["semantics.jsonl"])
 		self.assertEqual(
-			payloads["semantics.jsonl"], dict(sb.prepareBundle(source).artifacts())["semantics.jsonl"]
+			payloads["semantics.jsonl"],
+			dict(sb.prepareBundle(source).artifacts())["semantics.jsonl"],
 		)
 
 		with TemporaryDirectory() as temporary:
@@ -464,10 +465,11 @@ class SnapshotViewProjectionTests(unittest.TestCase):
 			record for record in nodeRecords if cast(dict[str, object], record["fields"])["exceptions"]
 		)
 		exceptions = cast(
-			list[list[object]], cast(dict[str, object], exceptionRecord["fields"])["exceptions"]
+			list[list[object]],
+			cast(dict[str, object], exceptionRecord["fields"])["exceptions"],
 		)
 		exceptions[0][0] = len(
-			next(schema for schema in package.index.compactDefaults if schema.topic == "nodes").columns
+			next(schema for schema in package.index.compactDefaults if schema.topic == "nodes").columns,
 		)
 		malformedNodesPayload = (
 			b"\n".join(

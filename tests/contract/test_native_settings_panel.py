@@ -560,7 +560,9 @@ class NativeDialogTests(unittest.TestCase):
 
 				with (
 					patch.object(
-						compositionModule, "import_module", return_value=SimpleNamespace(Choice=_Choice)
+						compositionModule,
+						"import_module",
+						return_value=SimpleNamespace(Choice=_Choice),
 					),
 					self.assertRaisesRegex(ValueError, "not saved"),
 				):

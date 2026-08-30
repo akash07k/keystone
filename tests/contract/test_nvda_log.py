@@ -166,7 +166,7 @@ class NativeLoggingServiceTests(unittest.TestCase):
 		self.assertEqual("admissionRejected", result.status)
 		self.assertEqual([], nvda.records)
 		admitted = log.emit(
-			candidate(field("activeOperationKind", "protected", privacyClass=PrivacyClass.PROTECTED))
+			candidate(field("activeOperationKind", "protected", privacyClass=PrivacyClass.PROTECTED)),
 		)
 		assert admitted.record is not None
 		self.assertEqual(1, admitted.record.sequence)

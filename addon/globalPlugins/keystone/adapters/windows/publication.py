@@ -466,7 +466,10 @@ class _WindowsDirectoryAuthority:
 		try:
 			info = _FileAttributeTagInfo()
 			if not self._kernel32.GetFileInformationByHandleEx(
-				handle, 9, ctypes.byref(info), ctypes.sizeof(info)
+				handle,
+				9,
+				ctypes.byref(info),
+				ctypes.sizeof(info),
 			):
 				raise ctypes.WinError(ctypes.get_last_error())
 			if info.FileAttributes & (_FILE_ATTRIBUTE_DIRECTORY | _REPARSE_POINT_ATTRIBUTE):
@@ -493,9 +496,12 @@ class _WindowsDirectoryAuthority:
 			info = _FileAttributeTagInfo()
 			return bool(
 				self._kernel32.GetFileInformationByHandleEx(
-					handle, 9, ctypes.byref(info), ctypes.sizeof(info)
+					handle,
+					9,
+					ctypes.byref(info),
+					ctypes.sizeof(info),
 				)
-				and not info.FileAttributes & (_FILE_ATTRIBUTE_DIRECTORY | _REPARSE_POINT_ATTRIBUTE)
+				and not info.FileAttributes & (_FILE_ATTRIBUTE_DIRECTORY | _REPARSE_POINT_ATTRIBUTE),
 			)
 		finally:
 			_ = self._kernel32.CloseHandle(handle)

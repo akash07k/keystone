@@ -616,7 +616,9 @@ class TestPublicationStateMachine(unittest.TestCase):
 
 		first = manager.publish(package, lambda: PublicationPolicy(), CONTEXT)
 		second = manager.publish(
-			replace(package, publicationId="publication-b"), lambda: PublicationPolicy(), CONTEXT
+			replace(package, publicationId="publication-b"),
+			lambda: PublicationPolicy(),
+			CONTEXT,
 		)
 
 		assert first.receipt is not None
