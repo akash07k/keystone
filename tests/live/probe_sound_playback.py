@@ -1,6 +1,6 @@
 """Installed asynchronous sound playback probe (research gate for SND-01/03/12/13).
 
-Runs against the installed NVDA 2026.1.1 runtime archive derived from ``--nvda-executable``.
+Runs against the installed NVDA 2026.3 runtime archive derived from ``--nvda-executable``.
 It proves, on the live host, that the low-level WASAPI seam NVDA itself drives can play one
 and two deterministic PCM atoms asynchronously with a bounded, non-overlapping inter-atom
 gap, begin an urgent replacement within budget, submit unrelated speech immediately, reject a

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import MutableMapping
 from dataclasses import dataclass
-from typing import cast
+from typing import Protocol, cast
 
 from ...domain.settings import (
 	SETTING_DEFINITIONS,
@@ -33,16 +33,15 @@ _WRITE_FAILED = "KS.SETTINGS.WRITE_FAILED"
 _BASE_ONLY_UNAVAILABLE = "KS.SETTINGS.BASE_ONLY_UNAVAILABLE"
 
 NVDA_API_EVIDENCE = (
-	("source/config/configSections.py", "registerSection"),
-	("source/config/configSections.py", "unregisterSection"),
-	("source/config/configSections.py", "_addSection"),
-	("release-2026.1.1/source/config/__init__.py", "ConfigManager.spec"),
-	("release-2026.1.1/source/config/__init__.py", "ConfigManager.profiles[0]"),
-	("release-2026.1.1/source/config/__init__.py", "section.configspec"),
-	("release-2026.1.1/source/config/__init__.py", "profile.validate"),
-	("source/config/__init__.py", "ConfigManager.BASE_ONLY_SECTIONS"),
-	("source/config/__init__.py", "ConfigManager.__getitem__"),
-	("source/config/__init__.py", "ConfigManager.save"),
+	("release-2026.3/source/config/configSections.py", "registerSection"),
+	("release-2026.3/source/config/configSections.py", "_loadCustomSections"),
+	("release-2026.3/source/config/configSections.py", "_saveCustomSections"),
+	("release-2026.3/source/config/__init__.py", "initialize"),
+	("release-2026.3/source/config/__init__.py", "ConfigManager.BASE_ONLY_SECTIONS"),
+	("release-2026.3/source/config/__init__.py", "ConfigManager._initBaseConf"),
+	("release-2026.3/source/config/__init__.py", "ConfigManager.__getitem__"),
+	("release-2026.3/source/NVDAState.py", "WritePaths.nvdaCustomSectionsFile"),
+	("release-2026.2/source/config/__init__.py", "ConfigManager._initBaseConf"),
 )
 
 
@@ -58,6 +57,95 @@ class ConfigRegistrationResult:
 	@classmethod
 	def unavailable(cls) -> ConfigRegistrationResult:
 		return cls(False, _BASE_ONLY_UNAVAILABLE)
+
+
+class ConfigSectionsApi(Protocol):
+	def registerSection(
+		self,
+		sectionName: str,
+		sectionSpec: dict[str, str],
+		isBaseOnly: bool = False,
+	) -> None: ...
+
+	def unregisterSection(self, sectionName: str) -> None: ...
+
+
+@dataclass(frozen=True, slots=True)
+class _KeystoneBaseSectionSnapshot:
+	baseOnlySections: set[str]
+	hadBaseOnlySection: bool
+	spec: MutableMapping[str, object]
+	hadSpec: bool
+	previousSpec: object | None
+	base: MutableMapping[str, object]
+	originalSection: MutableMapping[str, object] | None
+	previousSection: dict[str, object] | None
+	previousSectionSpec: object | None
+
+
+def _snapshotKeystoneBaseSection(configManager: object) -> _KeystoneBaseSectionSnapshot | None:
+	baseOnlySections = getattr(configManager, "BASE_ONLY_SECTIONS", None)
+	spec = getattr(configManager, "spec", None)
+	profiles = getattr(configManager, "profiles", None)
+	if (
+		not isinstance(baseOnlySections, set)
+		or not isinstance(spec, MutableMapping)
+		or not isinstance(profiles, list)
+		or not profiles
+		or not isinstance(profiles[0], MutableMapping)
+	):
+		return None
+	typedSpec = cast(MutableMapping[str, object], spec)
+	base = cast(MutableMapping[str, object], profiles[0])
+	section = base.get(KEYSTONE_SECTION)
+	if section is not None and not isinstance(section, MutableMapping):
+		return None
+	typedSection = cast(MutableMapping[str, object] | None, section)
+	return _KeystoneBaseSectionSnapshot(
+		baseOnlySections=cast(set[str], baseOnlySections),
+		hadBaseOnlySection=KEYSTONE_SECTION in baseOnlySections,
+		spec=typedSpec,
+		hadSpec=KEYSTONE_SECTION in typedSpec,
+		previousSpec=typedSpec.get(KEYSTONE_SECTION),
+		base=base,
+		originalSection=typedSection,
+		previousSection=dict(typedSection) if typedSection is not None else None,
+		previousSectionSpec=getattr(typedSection, "configspec", None),
+	)
+
+
+def _restoreKeystoneBaseSection(snapshot: _KeystoneBaseSectionSnapshot) -> None:
+	if snapshot.hadBaseOnlySection:
+		snapshot.baseOnlySections.add(KEYSTONE_SECTION)
+	else:
+		snapshot.baseOnlySections.discard(KEYSTONE_SECTION)
+	if snapshot.hadSpec:
+		snapshot.spec[KEYSTONE_SECTION] = snapshot.previousSpec
+	else:
+		_ = snapshot.spec.pop(KEYSTONE_SECTION, None)
+	if snapshot.originalSection is None:
+		_ = snapshot.base.pop(KEYSTONE_SECTION, None)
+	else:
+		snapshot.originalSection.clear()
+		snapshot.originalSection.update(snapshot.previousSection or {})
+		setattr(snapshot.originalSection, "configspec", snapshot.previousSectionSpec)
+		snapshot.base[KEYSTONE_SECTION] = snapshot.originalSection
+
+
+def registerKeystoneSection(api: ConfigSectionsApi) -> ConfigRegistrationResult:
+	try:
+		api.registerSection(KEYSTONE_SECTION, buildConfigSpec(), isBaseOnly=True)
+	except (AttributeError, OSError, TypeError, ValueError):
+		return ConfigRegistrationResult.unavailable()
+	return ConfigRegistrationResult(True)
+
+
+def unregisterKeystoneSection(api: ConfigSectionsApi) -> ConfigRegistrationResult:
+	try:
+		api.unregisterSection(KEYSTONE_SECTION)
+	except (AttributeError, OSError, TypeError, ValueError):
+		return ConfigRegistrationResult.unavailable()
+	return ConfigRegistrationResult(True)
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,13 +217,13 @@ def initializeKeystoneBaseSection(configManager: object) -> ConfigRegistrationRe
 	return ConfigRegistrationResult(True)
 
 
-def initializeLegacyKeystoneBaseSection(configManager: object) -> ConfigRegistrationResult:
-	"""Register Keystone against NVDA 2026.1's base configuration surfaces.
+def migrateKeystoneBaseSection(configManager: object) -> ConfigRegistrationResult:
+	"""Move an existing base-profile section into NVDA 2026.3's custom-section registry.
 
-	NVDA 2026.1 exposes ``BASE_ONLY_SECTIONS`` but predates ``config.configSections``. Registration
-	therefore mirrors ``ConfigManager._initBaseConf`` for one section: attach the validated spec to the
-	base profile, add the section to the public base-only registry, and leave overlay profiles untouched.
-	Every partial mutation is rolled back if validation cannot complete.
+	When NVDA is upgraded without reinstalling an add-on, its prior ``nvda.ini`` section can remain
+	while the new ``customSections.yaml`` registration is absent. Attach the current spec to that
+	existing base section for this runtime, preserving its values while the public registration is
+	persisted separately.
 	"""
 
 	if getattr(configManager, "baseConfigError", False) is not False:
@@ -203,16 +291,32 @@ def initializeLegacyKeystoneBaseSection(configManager: object) -> ConfigRegistra
 	return ConfigRegistrationResult(True)
 
 
-def unregisterLegacyKeystoneBaseSection(configManager: object) -> ConfigRegistrationResult:
-	"""Remove process-local legacy registration while preserving stored user values."""
-
-	baseOnlySections = getattr(configManager, "BASE_ONLY_SECTIONS", None)
-	spec = getattr(configManager, "spec", None)
-	if not isinstance(baseOnlySections, set) or not isinstance(spec, MutableMapping):
+def migrateAndRegisterKeystoneSection(
+	configManager: object,
+	configSections: ConfigSectionsApi,
+) -> ConfigRegistrationResult:
+	snapshot = _snapshotKeystoneBaseSection(configManager)
+	if snapshot is None:
 		return ConfigRegistrationResult.unavailable()
-	cast(set[str], baseOnlySections).discard(KEYSTONE_SECTION)
-	_ = cast(MutableMapping[str, object], spec).pop(KEYSTONE_SECTION, None)
-	return ConfigRegistrationResult(True)
+	migration = migrateKeystoneBaseSection(configManager)
+	if not migration.available:
+		return migration
+	registration = registerKeystoneSection(configSections)
+	if not registration.available:
+		_restoreKeystoneBaseSection(snapshot)
+	return registration
+
+
+def ensureKeystoneBaseSection(
+	configManager: object,
+	configSections: ConfigSectionsApi,
+) -> ConfigRegistrationResult:
+	registration = initializeKeystoneBaseSection(configManager)
+	if registration.available:
+		return registration
+	if getattr(configManager, "baseConfigError", False) is not False:
+		return registration
+	return migrateAndRegisterKeystoneSection(configManager, configSections)
 
 
 class NvdaSettingsAdapter:

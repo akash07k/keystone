@@ -84,11 +84,11 @@ from .custom_uia_registry import buildNvdaCustomUiaRegistry
 from .event_monitor_session import EventMonitorSession
 from .event_sources import NvdaEventSource
 from .settings import (
+	ConfigSectionsApi,
 	NvdaSettingsAdapter,
 	RedactionMigrationOutcome,
 	SettingsLoadResult,
-	initializeKeystoneBaseSection,
-	initializeLegacyKeystoneBaseSection,
+	ensureKeystoneBaseSection,
 )
 
 
@@ -1782,14 +1782,8 @@ def buildProductionComposition() -> ProductionComposition:
 	except (AttributeError, ImportError):
 		settingsAdapter = _ClosedSettingsAdapter()
 	else:
-		try:
-			_ = import_module("config.configSections")
-		except ModuleNotFoundError as error:
-			if error.name != "config.configSections":
-				raise
-			registration = initializeLegacyKeystoneBaseSection(config.conf)
-		else:
-			registration = initializeKeystoneBaseSection(config.conf)
+		configSections = cast(ConfigSectionsApi, import_module("config.configSections"))
+		registration = ensureKeystoneBaseSection(config.conf, configSections)
 		if not registration.available:
 			raise RuntimeError("Keystone settings registration is unavailable")
 		settingsAdapter = NvdaSettingsAdapter(config.conf)

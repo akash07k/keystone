@@ -582,7 +582,7 @@ class ProductionCompositionTests(unittest.TestCase):
 			patch.object(compositionModule, "NvdaPanelRegistry", return_value=registry),
 			patch.object(
 				compositionModule,
-				"initializeKeystoneBaseSection",
+				"ensureKeystoneBaseSection",
 				return_value=ConfigRegistrationResult(True),
 			),
 			patch.object(compositionModule, "import_module", return_value=configModule),
@@ -614,7 +614,7 @@ class ProductionCompositionTests(unittest.TestCase):
 		composition.close()
 		self.assertEqual(1, len(registry.removed))
 
-	def test_product_builder_selects_legacy_registration_only_when_new_api_is_absent(self) -> None:
+	def test_product_builder_uses_the_2026_3_registration_api(self) -> None:
 		status = StatusLoader(_snapshot())
 		settings = SettingsAdapter(
 			SettingsLoadResult("ready", SettingsSnapshot.defaults(settingsRevision=1)),
@@ -622,11 +622,10 @@ class ProductionCompositionTests(unittest.TestCase):
 		registry = PanelRegistry()
 		configManager = object()
 		configModule = SimpleNamespace(conf=configManager)
+		configSections = object()
 
-		def importHostModule(name: str) -> object:
-			if name == "config.configSections":
-				raise ModuleNotFoundError(name=name)
-			return configModule
+		def importNvdaModule(name: str) -> object:
+			return configSections if name == "config.configSections" else configModule
 
 		with (
 			patch.object(compositionModule, "_productionStatusLoader", return_value=status),
@@ -634,16 +633,18 @@ class ProductionCompositionTests(unittest.TestCase):
 			patch.object(compositionModule, "NvdaPanelRegistry", return_value=registry),
 			patch.object(
 				compositionModule,
-				"initializeLegacyKeystoneBaseSection",
+				"ensureKeystoneBaseSection",
 				return_value=ConfigRegistrationResult(True),
-			) as legacy,
-			patch.object(compositionModule, "initializeKeystoneBaseSection") as modern,
-			patch.object(compositionModule, "import_module", side_effect=importHostModule),
+			) as ensure,
+			patch.object(
+				compositionModule,
+				"import_module",
+				side_effect=importNvdaModule,
+			),
 		):
 			_ = compositionModule.buildProductionComposition()
 
-		legacy.assert_called_once_with(configManager)
-		modern.assert_not_called()
+		ensure.assert_called_once_with(configManager, configSections)
 
 	def test_product_builder_does_not_silently_default_after_registration_failure(self) -> None:
 		configModule = SimpleNamespace(conf=object())
@@ -651,7 +652,7 @@ class ProductionCompositionTests(unittest.TestCase):
 		with (
 			patch.object(
 				compositionModule,
-				"initializeKeystoneBaseSection",
+				"ensureKeystoneBaseSection",
 				return_value=ConfigRegistrationResult.unavailable(),
 			),
 			patch.object(compositionModule, "import_module", return_value=configModule),
@@ -676,7 +677,7 @@ class ProductionCompositionTests(unittest.TestCase):
 				patch.object(compositionModule, "NvdaPanelRegistry", side_effect=unavailable),
 				patch.object(
 					compositionModule,
-					"initializeKeystoneBaseSection",
+					"ensureKeystoneBaseSection",
 					return_value=ConfigRegistrationResult(True),
 				),
 				patch.object(compositionModule, "import_module", return_value=configModule),
@@ -707,7 +708,7 @@ class ProductionCompositionTests(unittest.TestCase):
 				patch.object(compositionModule, "NvdaPanelRegistry", side_effect=unexpected),
 				patch.object(
 					compositionModule,
-					"initializeKeystoneBaseSection",
+					"ensureKeystoneBaseSection",
 					return_value=ConfigRegistrationResult(True),
 				),
 				patch.object(compositionModule, "import_module", return_value=configModule),

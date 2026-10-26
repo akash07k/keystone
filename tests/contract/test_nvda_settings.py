@@ -7,7 +7,12 @@ from typing import Protocol, cast, override
 import unittest
 from unittest.mock import patch
 
-from addon.globalPlugins.keystone.domain.settings import SettingId, SettingsSnapshot
+from addon.globalPlugins.keystone.domain.settings import (
+	SETTING_DEFINITIONS,
+	SettingId,
+	SettingKind,
+	SettingsSnapshot,
+)
 from addon.globalPlugins.keystone.domain.correlation import CorrelationFactory
 from addon.globalPlugins.keystone.ports.effects import EffectResult, SettingsWriteRequest
 
@@ -18,15 +23,9 @@ class RegistrationResultLike(Protocol):
 
 
 class InstallTasksLike(Protocol):
-	def registerKeystoneSection(self, api: object) -> RegistrationResultLike: ...
-
-	def unregisterKeystoneSection(self, api: object) -> RegistrationResultLike: ...
-
-	def registerLegacyKeystoneSection(self, manager: object) -> RegistrationResultLike: ...
-
-	def unregisterLegacyKeystoneSection(self, manager: object) -> RegistrationResultLike: ...
-
 	def onInstall(self) -> None: ...
+
+	def onUninstall(self) -> None: ...
 
 
 class SettingsLoadResultLike(Protocol):
@@ -63,9 +62,19 @@ class SettingsModuleLike(Protocol):
 
 	def buildConfigSpec(self) -> dict[str, str]: ...
 
+	def registerKeystoneSection(self, api: object) -> RegistrationResultLike: ...
+
+	def unregisterKeystoneSection(self, api: object) -> RegistrationResultLike: ...
+
 	def initializeKeystoneBaseSection(self, manager: object) -> RegistrationResultLike: ...
 
-	def initializeLegacyKeystoneBaseSection(self, manager: object) -> RegistrationResultLike: ...
+	def migrateKeystoneBaseSection(self, manager: object) -> RegistrationResultLike: ...
+
+	def ensureKeystoneBaseSection(
+		self,
+		manager: object,
+		configSections: object,
+	) -> RegistrationResultLike: ...
 
 
 installTasks = cast(InstallTasksLike, cast(object, import_module("addon.installTasks")))
@@ -139,8 +148,44 @@ class FakeConfigSection(dict[str, object]):
 
 	def validate(self, _validator: object, *, section: object) -> object:
 		assert isinstance(section, FakeConfigSection)
-		for key, value in _stored(SettingsSnapshot.defaults(settingsRevision=1)).items():
-			_ = section.setdefault(key, value)
+		definitions = {definition.settingId.value: definition for definition in SETTING_DEFINITIONS}
+		for key, default in _stored(SettingsSnapshot.defaults(settingsRevision=1)).items():
+			if key not in section:
+				section[key] = default
+				continue
+			value = section[key]
+			if isinstance(default, bool):
+				if isinstance(value, str) and value.casefold() in {"true", "yes", "on", "1"}:
+					value = True
+				elif isinstance(value, str) and value.casefold() in {"false", "no", "off", "0"}:
+					value = False
+				elif not isinstance(value, bool):
+					return False
+			elif isinstance(default, int):
+				if not isinstance(value, (int, str)) or isinstance(value, bool):
+					return False
+				try:
+					value = int(value)
+				except (TypeError, ValueError):
+					return False
+				definition = definitions.get(key)
+				if definition is not None and definition.kind is SettingKind.INTEGER:
+					if (
+						definition.minimum is None
+						or definition.maximum is None
+						or not definition.minimum <= value <= definition.maximum
+					):
+						return False
+				elif key == "settingsRevision" and value < 1:
+					return False
+				elif key == "redactionPolicyGeneration" and value < 0:
+					return False
+			else:
+				definition = definitions.get(key)
+				if definition is not None and definition.kind is SettingKind.CHOICE:
+					if value not in definition.choices:
+						return False
+			section[key] = value
 		return self.validationResult
 
 
@@ -167,7 +212,7 @@ class FreshRuntimeConfigManager:
 		self.saveCalls += 1
 
 
-class LegacyRuntimeConfigManager:
+class UnregisteredRuntimeConfigManager:
 	def __init__(
 		self,
 		*,
@@ -203,6 +248,10 @@ def _stored(snapshot: SettingsSnapshot) -> dict[str, object]:
 	}
 
 
+def _storedText(snapshot: SettingsSnapshot) -> dict[str, object]:
+	return {key: str(value) for key, value in _stored(snapshot).items()}
+
+
 class RegistrationTests(unittest.TestCase):
 	def test_runtime_initialization_accepts_the_registered_base_only_section(self) -> None:
 		manager = FreshRuntimeConfigManager()
@@ -224,12 +273,61 @@ class RegistrationTests(unittest.TestCase):
 		self.assertFalse(result.available)
 		self.assertEqual(before, manager.profiles)
 
-	def test_legacy_2026_1_initialization_registers_and_preserves_the_base_section(self) -> None:
-		persisted = _stored(SettingsSnapshot.defaults(settingsRevision=7))
-		persisted["maximumNodes"] = 7_777
-		manager = LegacyRuntimeConfigManager(persisted=persisted)
+	def test_ensure_does_not_reregister_an_already_loaded_section(self) -> None:
+		manager = FreshRuntimeConfigManager()
+		sections = FakeConfigSections()
 
-		result = settingsModule.initializeLegacyKeystoneBaseSection(manager)
+		result = settingsModule.ensureKeystoneBaseSection(manager, sections)
+
+		self.assertTrue(result.available)
+		self.assertEqual([], sections.calls)
+
+	def test_ensure_does_not_register_when_base_profile_is_unreadable(self) -> None:
+		manager = UnregisteredRuntimeConfigManager()
+		manager.baseConfigError = True
+		sections = FakeConfigSections()
+
+		result = settingsModule.ensureKeystoneBaseSection(manager, sections)
+
+		self.assertFalse(result.available)
+		self.assertEqual([], sections.calls)
+		self.assertNotIn(KEYSTONE_SECTION, manager.BASE_ONLY_SECTIONS)
+
+	def test_ensure_does_not_register_when_existing_settings_fail_validation(self) -> None:
+		persisted = _stored(SettingsSnapshot.defaults(settingsRevision=7))
+		persisted["maximumNodes"] = "99999999"
+		manager = UnregisteredRuntimeConfigManager(persisted=persisted)
+		sections = FakeConfigSections()
+		beforeBase = deepcopy(manager.profiles[0])
+
+		result = settingsModule.ensureKeystoneBaseSection(manager, sections)
+
+		self.assertFalse(result.available)
+		self.assertEqual([], sections.calls)
+		self.assertEqual(beforeBase, manager.profiles[0])
+		self.assertNotIn(KEYSTONE_SECTION, manager.BASE_ONLY_SECTIONS)
+
+	def test_ensure_rolls_back_migration_when_registration_fails(self) -> None:
+		manager = UnregisteredRuntimeConfigManager()
+		sections = FakeConfigSections(supported=False)
+		beforeSections = set(manager.BASE_ONLY_SECTIONS)
+		beforeSpec = deepcopy(manager.spec)
+		beforeBase = deepcopy(manager.profiles[0])
+
+		result = settingsModule.ensureKeystoneBaseSection(manager, sections)
+
+		self.assertFalse(result.available)
+		self.assertEqual(beforeSections, manager.BASE_ONLY_SECTIONS)
+		self.assertEqual(beforeSpec, manager.spec)
+		self.assertEqual(beforeBase, manager.profiles[0])
+		self.assertEqual([], sections.calls)
+
+	def test_2026_2_migration_preserves_the_existing_base_section(self) -> None:
+		persisted = _storedText(SettingsSnapshot.defaults(settingsRevision=7))
+		persisted["maximumNodes"] = "7777"
+		manager = UnregisteredRuntimeConfigManager(persisted=persisted)
+
+		result = settingsModule.migrateKeystoneBaseSection(manager)
 		loaded = NvdaSettingsAdapter(manager).readSnapshot()
 
 		self.assertTrue(result.available)
@@ -241,27 +339,29 @@ class RegistrationTests(unittest.TestCase):
 		assert loaded.snapshot is not None
 		self.assertEqual(7_777, loaded.snapshot.maximumNodes)
 		self.assertEqual(7, loaded.snapshot.settingsRevision)
+		self.assertIsInstance(section["maximumNodes"], int)
+		self.assertIsInstance(section["soundsEnabled"], bool)
 
-	def test_legacy_initialization_rolls_back_every_partial_registration_on_failure(self) -> None:
-		manager = LegacyRuntimeConfigManager()
+	def test_2026_2_migration_rolls_back_every_partial_registration_on_failure(self) -> None:
+		manager = UnregisteredRuntimeConfigManager()
 		manager.validator = None
 		beforeSections = set(manager.BASE_ONLY_SECTIONS)
 		beforeSpec = deepcopy(manager.spec)
 		beforeBase = deepcopy(manager.profiles[0])
 
-		result = settingsModule.initializeLegacyKeystoneBaseSection(manager)
+		result = settingsModule.migrateKeystoneBaseSection(manager)
 
 		self.assertFalse(result.available)
 		self.assertEqual(beforeSections, manager.BASE_ONLY_SECTIONS)
 		self.assertEqual(beforeSpec, manager.spec)
 		self.assertEqual(beforeBase, manager.profiles[0])
 
-	def test_legacy_initialization_rolls_back_on_false_or_nested_validation_failure(self) -> None:
+	def test_2026_2_migration_rolls_back_on_false_or_nested_validation_failure(self) -> None:
 		for validationResult in (False, {KEYSTONE_SECTION: {"maximumNodes": False}}):
 			with self.subTest(validationResult=validationResult):
 				persisted = _stored(SettingsSnapshot.defaults(settingsRevision=7))
 				persisted["maximumNodes"] = 7_777
-				manager = LegacyRuntimeConfigManager(
+				manager = UnregisteredRuntimeConfigManager(
 					persisted=persisted,
 					validationResult=validationResult,
 				)
@@ -269,18 +369,37 @@ class RegistrationTests(unittest.TestCase):
 				beforeSpec = deepcopy(manager.spec)
 				beforeBase = deepcopy(manager.profiles[0])
 
-				result = settingsModule.initializeLegacyKeystoneBaseSection(manager)
+				result = settingsModule.migrateKeystoneBaseSection(manager)
 
 				self.assertFalse(result.available)
 				self.assertEqual(beforeSections, manager.BASE_ONLY_SECTIONS)
 				self.assertEqual(beforeSpec, manager.spec)
 				self.assertEqual(beforeBase, manager.profiles[0])
 
+	def test_ensure_registers_2026_2_settings_and_preserves_their_values(self) -> None:
+		persisted = _storedText(SettingsSnapshot.defaults(settingsRevision=7))
+		persisted["maximumNodes"] = "7777"
+		manager = UnregisteredRuntimeConfigManager(persisted=persisted)
+		sections = FakeConfigSections()
+
+		result = settingsModule.ensureKeystoneBaseSection(manager, sections)
+		loaded = NvdaSettingsAdapter(manager).readSnapshot()
+
+		self.assertTrue(result.available)
+		self.assertEqual(
+			[("register", KEYSTONE_SECTION, buildConfigSpec(), True)],
+			sections.calls,
+		)
+		self.assertIsNotNone(loaded.snapshot)
+		assert loaded.snapshot is not None
+		self.assertEqual(7_777, loaded.snapshot.maximumNodes)
+		self.assertIn(KEYSTONE_SECTION, manager.BASE_ONLY_SECTIONS)
+
 	def test_registers_and_unregisters_one_base_only_section(self) -> None:
 		api = FakeConfigSections()
 
-		result = installTasks.registerKeystoneSection(api)
-		removed = installTasks.unregisterKeystoneSection(api)
+		result = settingsModule.registerKeystoneSection(api)
+		removed = settingsModule.unregisterKeystoneSection(api)
 
 		self.assertTrue(result.available)
 		self.assertTrue(removed.available)
@@ -296,63 +415,121 @@ class RegistrationTests(unittest.TestCase):
 	def test_unsupported_registration_stays_unavailable_without_spec_mutation(self) -> None:
 		api = FakeConfigSections(supported=False)
 
-		result = installTasks.registerKeystoneSection(api)
+		result = settingsModule.registerKeystoneSection(api)
 
 		self.assertFalse(result.available)
 		self.assertEqual(result.errorCode, "KS.SETTINGS.BASE_ONLY_UNAVAILABLE")
 		self.assertEqual(api.spec, {})
 		self.assertEqual(api.calls, [])
 
-	def test_install_uses_legacy_2026_1_registration_only_when_new_module_is_absent(self) -> None:
-		manager = LegacyRuntimeConfigManager()
+	def test_install_requires_nvda_2026_3_registration_api(self) -> None:
+		with (
+			patch(
+				"addon.installTasks.import_module",
+				side_effect=ModuleNotFoundError(name="config.configSections"),
+			),
+			self.assertRaises(ModuleNotFoundError),
+		):
+			installTasks.onInstall()
+
+	def test_install_keeps_the_new_registration_api_when_available(self) -> None:
+		persisted = _storedText(SettingsSnapshot.defaults(settingsRevision=7))
+		persisted["maximumNodes"] = "7777"
+		manager = UnregisteredRuntimeConfigManager(persisted=persisted)
 		config = SimpleNamespace(conf=manager)
+		api = FakeConfigSections()
 
 		def importHostModule(name: str) -> object:
-			if name == "config.configSections":
-				error = ModuleNotFoundError(name)
-				error.name = name
-				raise error
-			if name == "config":
-				return config
-			raise ImportError(name)
+			return config if name == "config" else api
 
 		with patch("addon.installTasks.import_module", side_effect=importHostModule):
 			installTasks.onInstall()
 
-		self.assertEqual(1, manager.saveCalls)
-		self.assertTrue(NvdaSettingsAdapter(manager).readSnapshot().status == "ready")
+		self.assertEqual([("register", KEYSTONE_SECTION, buildConfigSpec(), True)], api.calls)
+		loaded = NvdaSettingsAdapter(manager).readSnapshot()
+		self.assertIsNotNone(loaded.snapshot)
+		assert loaded.snapshot is not None
+		self.assertEqual(7_777, loaded.snapshot.maximumNodes)
 
-	def test_install_keeps_the_new_registration_api_when_available(self) -> None:
+	def test_install_does_not_register_when_existing_settings_fail_validation(self) -> None:
+		persisted = _stored(SettingsSnapshot.defaults(settingsRevision=7))
+		persisted["maximumNodes"] = "99999999"
+		manager = UnregisteredRuntimeConfigManager(persisted=persisted)
+		config = SimpleNamespace(conf=manager)
 		api = FakeConfigSections()
 
-		with patch("addon.installTasks.import_module", return_value=api):
-			installTasks.onInstall()
-
-		self.assertEqual([("register", KEYSTONE_SECTION, buildConfigSpec(), True)], api.calls)
-
-	def test_install_fails_explicitly_when_the_selected_registration_path_fails(self) -> None:
-		api = FakeConfigSections(supported=False)
+		def importHostModule(name: str) -> object:
+			return config if name == "config" else api
 
 		with (
-			patch("addon.installTasks.import_module", return_value=api),
+			patch("addon.installTasks.import_module", side_effect=importHostModule),
+			self.assertRaisesRegex(RuntimeError, "migration"),
+		):
+			installTasks.onInstall()
+
+		self.assertEqual([], api.calls)
+		self.assertNotIn(KEYSTONE_SECTION, manager.BASE_ONLY_SECTIONS)
+
+	def test_install_fails_explicitly_when_the_selected_registration_path_fails(self) -> None:
+		manager = UnregisteredRuntimeConfigManager()
+		config = SimpleNamespace(conf=manager)
+		api = FakeConfigSections(supported=False)
+
+		def importHostModule(name: str) -> object:
+			return config if name == "config" else api
+
+		with (
+			patch("addon.installTasks.import_module", side_effect=importHostModule),
 			self.assertRaises(RuntimeError),
 		):
 			installTasks.onInstall()
+		self.assertEqual({"general"}, manager.BASE_ONLY_SECTIONS)
+		self.assertEqual({}, manager.spec)
+		self.assertNotIn(KEYSTONE_SECTION, manager.profiles[0])
+
+	def test_uninstall_preserves_registration_when_replacement_is_pending(self) -> None:
+		api = FakeConfigSections()
+		addonHandler = SimpleNamespace(
+			AddonStateCategory=SimpleNamespace(PENDING_INSTALL="pendingInstalls"),
+			state={"pendingInstalls": {"keystone"}},
+		)
+
+		def importHostModule(name: str) -> object:
+			return addonHandler if name == "addonHandler" else api
+
+		with patch("addon.installTasks.import_module", side_effect=importHostModule):
+			installTasks.onUninstall()
+
+		self.assertEqual([], api.calls)
+
+	def test_uninstall_unregisters_when_no_replacement_is_pending(self) -> None:
+		api = FakeConfigSections()
+		addonHandler = SimpleNamespace(
+			AddonStateCategory=SimpleNamespace(PENDING_INSTALL="pendingInstalls"),
+			state={"pendingInstalls": set()},
+		)
+
+		def importHostModule(name: str) -> object:
+			return addonHandler if name == "addonHandler" else api
+
+		with patch("addon.installTasks.import_module", side_effect=importHostModule):
+			installTasks.onUninstall()
+
+		self.assertEqual([("unregister", KEYSTONE_SECTION)], api.calls)
 
 	def test_records_exact_reviewed_nvda_api_sources(self) -> None:
 		self.assertEqual(
 			NVDA_API_EVIDENCE,
 			(
-				("source/config/configSections.py", "registerSection"),
-				("source/config/configSections.py", "unregisterSection"),
-				("source/config/configSections.py", "_addSection"),
-				("release-2026.1.1/source/config/__init__.py", "ConfigManager.spec"),
-				("release-2026.1.1/source/config/__init__.py", "ConfigManager.profiles[0]"),
-				("release-2026.1.1/source/config/__init__.py", "section.configspec"),
-				("release-2026.1.1/source/config/__init__.py", "profile.validate"),
-				("source/config/__init__.py", "ConfigManager.BASE_ONLY_SECTIONS"),
-				("source/config/__init__.py", "ConfigManager.__getitem__"),
-				("source/config/__init__.py", "ConfigManager.save"),
+				("release-2026.3/source/config/configSections.py", "registerSection"),
+				("release-2026.3/source/config/configSections.py", "_loadCustomSections"),
+				("release-2026.3/source/config/configSections.py", "_saveCustomSections"),
+				("release-2026.3/source/config/__init__.py", "initialize"),
+				("release-2026.3/source/config/__init__.py", "ConfigManager.BASE_ONLY_SECTIONS"),
+				("release-2026.3/source/config/__init__.py", "ConfigManager._initBaseConf"),
+				("release-2026.3/source/config/__init__.py", "ConfigManager.__getitem__"),
+				("release-2026.3/source/NVDAState.py", "WritePaths.nvdaCustomSectionsFile"),
+				("release-2026.2/source/config/__init__.py", "ConfigManager._initBaseConf"),
 			),
 		)
 

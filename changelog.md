@@ -1,5 +1,8 @@
 # Keystone changes
 
+- Requires NVDA 2026.3 or later; compatibility with NVDA 2026.1 and 2026.2 has been dropped.
+- Migrates existing Keystone settings to NVDA 2026.3's registered configuration sections when NVDA
+  is upgraded without reinstalling the add-on.
 - Added the NVDA+slash command layer for foreground and navigator capture, diff, Inspector, Event
   Monitor, Custom UIA Properties, and command help.
 - Added the read-only Inspector and its focused and navigator-object workflows, including keyboard

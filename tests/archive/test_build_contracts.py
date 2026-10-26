@@ -364,6 +364,9 @@ class ArchiveInventoryTests(unittest.TestCase):
 			self.assertEqual(result.module_count, len(module_manifest(workspace)))
 
 			members = _read_members(archive)
+			manifest = members["manifest.ini"].decode("utf-8")
+			self.assertIn("minimumNVDAVersion = 2026.3", manifest)
+			self.assertIn("lastTestedNVDAVersion = 2026.3", manifest)
 			declared_sounds = {member for _, member in sound_manifest()}
 			packaged_sounds = {name for name in members if name.casefold().endswith(".wav")}
 			self.assertEqual(packaged_sounds, declared_sounds)

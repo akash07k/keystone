@@ -1,6 +1,6 @@
 """Installed raw UIA subscription probe (research gate for EVT-04).
 
-Runs against the installed NVDA 2026.1.1 runtime archive derived from ``--nvda-executable``.
+Runs against the installed NVDA 2026.3 runtime archive derived from ``--nvda-executable``.
 It proves, on the live host, that a single dedicated non-UI MTA thread can own an
 ``IUIAutomation`` client, add and remove event handlers, read an element property, and
 route minimal cached receipts to exactly the requested process while keeping the ten
